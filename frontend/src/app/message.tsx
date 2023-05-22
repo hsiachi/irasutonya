@@ -17,6 +17,9 @@ export default function Message({ msg }: { msg: Message }) {
       className="flex-grow-0"
     />
   );
+  if (msg.images) {
+    console.log(msg.images[0]);
+  }
   return (
     <div
       className={classNames(
@@ -32,7 +35,7 @@ export default function Message({ msg }: { msg: Message }) {
         )}
       >
         <div>{msg.text}</div>
-        <div>
+        <div className="flex flex-col items-center">
           {msg.images?.map((img, key) => (
             <Image
               src={`/data/${img}`}
@@ -40,6 +43,7 @@ export default function Message({ msg }: { msg: Message }) {
               width="200"
               height="200"
               key={key}
+              className="rounded-lg p-2"
             />
           ))}
         </div>

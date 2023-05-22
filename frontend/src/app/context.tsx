@@ -52,12 +52,22 @@ export function ConversationProvider({
         method: "GET",
       }
     );
-    let msg = "";
     if (!res.ok) {
-      msg = "Sorry, there's something wrong with me." + (await res.text());
+      const msg =
+        "Sorry, there's something wrong with me." + (await res.text());
+      setConversation((conv) => ({
+        ...conv,
+        messages: [
+          ...conv.messages,
+          {
+            role: "bot",
+            text: msg,
+          },
+        ],
+      }));
     } else {
       const data = await res.json();
-      console.log(data.data);
+      console.log(data.data.map((d: any) => d["image"]));
       setConversation((conv) => ({
         ...conv,
         messages: [
@@ -65,7 +75,7 @@ export function ConversationProvider({
           {
             role: "bot",
             text: "Here's the result I got for you!",
-            images: data.data as string[],
+            images: data.data.map((d: any) => d["image"]) as string[],
           },
         ],
       }));
