@@ -6,5 +6,7 @@ export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get("query");
 
   // TODO: implement search
-  return NextResponse.json({ message: "success" });
+  return NextResponse.json({
+    data: ["full/9d83195aa19dd4127dd74e12debecd7efedb264e.jpg"],
+  });
 }

@@ -8,7 +8,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        handwriting: ['var(--font-dokdo)']
+        handwriting: ['var(--font-dokdo)'],
+        sans: ['var(--font-pangolin)']
       }
     },
   },
