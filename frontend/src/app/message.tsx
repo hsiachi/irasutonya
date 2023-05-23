@@ -35,18 +35,20 @@ export default function Message({ msg }: { msg: Message }) {
         )}
       >
         <div>{msg.text}</div>
-        <div className="flex flex-col items-center">
-          {msg.images?.map((img, key) => (
-            <Image
-              src={`/data/${img}`}
-              alt="image"
-              width="200"
-              height="200"
-              key={key}
-              className="rounded-lg p-2"
-            />
-          ))}
-        </div>
+        {msg.images && (
+          <div className="flex relative overflow-auto h-64 items-center">
+            {msg.images?.map((img, key) => (
+              <Image
+                src={`/data/${img.url}`}
+                alt="image"
+                width={200}
+                height={200}
+                key={key}
+                className="rounded-2xl p-2 h-48 w-auto"
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

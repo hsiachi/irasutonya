@@ -5,15 +5,20 @@ import Input from "./input";
 import Message from "./message";
 import { ConversationProvider } from "./context";
 import useConversation from "@/hooks/useConversation";
+import { useEffect, useRef } from "react";
 
 function Conversation() {
   const { conversation } = useConversation();
+  const el = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    console.log(el.current?.clientHeight, el.current?.scrollHeight);
+  }, [el, conversation]);
   return (
-    <>
+    <div className="flex-1 overflow-auto" ref={el}>
       {conversation.messages.map((msg, i) => (
         <Message msg={msg} key={i} />
       ))}
-    </>
+    </div>
   );
 }
 
@@ -36,9 +41,8 @@ export default function Home() {
               />
             </h1>
           </div>
-          <div className="flex-1 overflow-auto">
-            <Conversation />
-          </div>
+          <Conversation />
+
           <div className="">
             <Input />
           </div>

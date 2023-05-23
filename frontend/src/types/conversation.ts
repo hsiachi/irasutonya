@@ -1,6 +1,6 @@
 export type Message = {
   text: string;
-  images?: string[];
+  images?: { name: string; url: string }[];
   role: "user" | "bot";
 };
 

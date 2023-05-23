@@ -9,8 +9,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ data: "query is required" }, { status: 400 });
   }
 
-  // TODO: implement search
-  console.log("search", convId, query);
   const fetched = await fetch(
     `${process.env.BACKEND_API_URL}/api/search?` +
       new URLSearchParams({ query: query, size: "5" })

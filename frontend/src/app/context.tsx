@@ -67,15 +67,27 @@ export function ConversationProvider({
       }));
     } else {
       const data = await res.json();
-      console.log(data.data.map((d: any) => d["image"]));
+      const images = data.data.map((d: any) => ({
+        name: d["name"],
+        url: d["image"],
+      }));
+      const response = await fetch("/api/reply", {
+        method: "POST",
+        body: JSON.stringify({
+          conversation,
+          images,
+        }),
+      });
+      const text = (await response.json()).reply;
+      console.log(text);
       setConversation((conv) => ({
         ...conv,
         messages: [
           ...conv.messages,
           {
             role: "bot",
-            text: "Here's the result I got for you!",
-            images: data.data.map((d: any) => d["image"]) as string[],
+            text: text,
+            images: images,
           },
         ],
       }));
