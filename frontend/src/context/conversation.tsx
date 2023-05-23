@@ -97,10 +97,32 @@ export function ConversationProvider({
     };
     addMessage({ text, role: "user", isLoading: false });
     addMessage({ text: "", role: "bot", isLoading: true });
+    let query: string;
+    if (config.rephrase) {
+      try {
+        query = (
+          await (
+            await fetch("/api/rephrase", {
+              method: "POST",
+              body: JSON.stringify({
+                conversation: convCopy,
+              }),
+            })
+          ).json()
+        )["query"];
+        console.log("query: ", query);
+      } catch (e) {
+        console.log(e);
+        console.log("Use default query");
+        query = text;
+      }
+    } else {
+      query = text;
+    }
     const res = await fetch(
       "/api/search?" +
         new URLSearchParams({
-          q: text,
+          q: query,
           cid: conversation.id,
           size: config.topKReturn.toString(),
         }),
@@ -120,15 +142,20 @@ export function ConversationProvider({
       }));
       let text: string;
       if (config.diverseReply) {
-        const response = await fetch("/api/reply", {
-          method: "POST",
-          body: JSON.stringify({
-            conversation: convCopy,
-            images,
-          }),
-        });
-        text = (await response.json()).reply;
-        console.log(text);
+        try {
+          const response = await fetch("/api/reply", {
+            method: "POST",
+            body: JSON.stringify({
+              conversation: convCopy,
+              images,
+            }),
+          });
+          text = (await response.json()).reply;
+          console.log(text);
+        } catch (e) {
+          console.log(e);
+          text = "Here are the results just for you!";
+        }
       } else {
         text = "Here are the results just for you!";
       }
