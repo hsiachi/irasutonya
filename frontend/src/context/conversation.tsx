@@ -14,6 +14,8 @@ const initConversationContext: ConversationContextType = {
       {
         role: "bot",
         text: "Hi, what can I do for you today?",
+        idx: 0,
+        isLoading: false,
       },
     ],
   },
@@ -32,18 +34,56 @@ export function ConversationProvider({
   const [conversation, setConversation] = useState<Conversation>(
     initConversationContext.conversation
   );
-  const { config } = useConfig();
-  const send = async (text: string) => {
+  function addMessage({
+    text,
+    role,
+    isLoading,
+  }: {
+    text: string;
+    role: "bot" | "user";
+    isLoading: boolean;
+  }) {
     setConversation((conv) => ({
       ...conv,
       messages: [
         ...conv.messages,
         {
-          role: "user",
+          idx: conv.messages.length,
+          role,
           text,
+          isLoading,
         },
       ],
     }));
+  }
+
+  function updateLastMessage({
+    text,
+    images,
+    isLoading,
+  }: {
+    text: string;
+    images?: { name: string; url: string }[];
+    isLoading: boolean;
+  }) {
+    setConversation((conv) => ({
+      ...conv,
+      messages: conv.messages.map((msg, i) => {
+        if (i != conv.messages.length - 1) return msg;
+        return {
+          ...msg,
+          text,
+          images,
+          isLoading,
+        };
+      }),
+    }));
+  }
+
+  const { config } = useConfig();
+  const send = async (text: string) => {
+    addMessage({ text, role: "user", isLoading: false });
+    addMessage({ text: "", role: "bot", isLoading: true });
     const res = await fetch(
       "/api/search?" +
         new URLSearchParams({
@@ -58,16 +98,7 @@ export function ConversationProvider({
     if (!res.ok) {
       const msg =
         "Sorry, there's something wrong with me." + (await res.text());
-      setConversation((conv) => ({
-        ...conv,
-        messages: [
-          ...conv.messages,
-          {
-            role: "bot",
-            text: msg,
-          },
-        ],
-      }));
+      updateLastMessage({ text: msg, isLoading: false });
     } else {
       const data = await res.json();
       const images = data.data.map((d: any) => ({
@@ -88,17 +119,7 @@ export function ConversationProvider({
       } else {
         text = "Here are the results just for you!";
       }
-      setConversation((conv) => ({
-        ...conv,
-        messages: [
-          ...conv.messages,
-          {
-            role: "bot",
-            text: text,
-            images: images,
-          },
-        ],
-      }));
+      updateLastMessage({ text, images, isLoading: false });
     }
   };
   return (

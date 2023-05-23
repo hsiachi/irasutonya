@@ -5,7 +5,7 @@ import Input from "./input";
 import Message from "./message";
 import { ConversationProvider } from "../context/conversation";
 import useConversation from "@/hooks/useConversation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { ConfigProvider } from "@/context/config";
 import { Popover, Transition } from "@headlessui/react";
 import useConfig from "@/hooks/useConfig";

@@ -34,20 +34,26 @@ export default function Message({ msg }: { msg: Message }) {
           "mt-2 max-w-xl px-4 py-2 rounded-lg"
         )}
       >
-        <div>{msg.text}</div>
-        {msg.images && (
-          <div className="flex relative overflow-auto scrollbar-hidden h-64 items-center">
-            {msg.images?.map((img, key) => (
-              <Image
-                src={`/data/${img.url}`}
-                alt="image"
-                width={200}
-                height={200}
-                key={key}
-                className="rounded-2xl p-2 h-48 w-auto"
-              />
-            ))}
-          </div>
+        {msg.isLoading ? (
+          <div>Wait...</div>
+        ) : (
+          <>
+            <div>{msg.text}</div>
+            {msg.images && (
+              <div className="flex relative overflow-auto scrollbar-hidden h-64 items-center">
+                {msg.images?.map((img, key) => (
+                  <Image
+                    src={`/data/${img.url}`}
+                    alt="image"
+                    width={200}
+                    height={200}
+                    key={key}
+                    className="rounded-2xl p-2 h-48 w-auto"
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
