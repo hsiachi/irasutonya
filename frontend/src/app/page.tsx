@@ -13,15 +13,16 @@ import classNames from "classnames";
 
 function Conversation() {
   const { conversation } = useConversation();
-  const el = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    console.log(el.current?.clientHeight, el.current?.scrollHeight);
-  }, [el, conversation]);
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  }, [ref, conversation]);
   return (
-    <div className="flex-1 overflow-auto" ref={el}>
+    <div className="flex-1 overflow-auto scrollbar-hidden">
       {conversation.messages.map((msg, i) => (
         <Message msg={msg} key={i} />
       ))}
+      <div className="float-left clear-both" ref={ref} />
     </div>
   );
 }
@@ -112,13 +113,11 @@ function TopKReturnItem() {
 }
 
 export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  console.log(menuOpen);
   return (
     <ConfigProvider>
       <ConversationProvider>
         <main className="flex h-screen flex-col items-center justify-between md:px-12">
-          <div className="px-12 my-12 max-w-4xl relative flex flex-col flex-1 justify-between container rounded-3xl bg-white">
+          <div className="h-full overflow-hidden px-12 my-12 max-w-4xl relative flex flex-col flex-1 justify-between container rounded-3xl bg-white">
             <div className="relative text-center py-8">
               <h1
                 className={`text-6xl font-bold font-handwriting relative inline`}
@@ -170,9 +169,7 @@ export default function Home() {
             </div>
             <Conversation />
 
-            <div className="">
-              <Input />
-            </div>
+            <Input />
           </div>
         </main>
       </ConversationProvider>

@@ -36,7 +36,7 @@ export default function Message({ msg }: { msg: Message }) {
       >
         <div>{msg.text}</div>
         {msg.images && (
-          <div className="flex relative overflow-auto h-64 items-center">
+          <div className="flex relative overflow-auto scrollbar-hidden h-64 items-center">
             {msg.images?.map((img, key) => (
               <Image
                 src={`/data/${img.url}`}
