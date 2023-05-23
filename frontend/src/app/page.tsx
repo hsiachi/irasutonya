@@ -1,113 +1,213 @@
-import Image from 'next/image'
+"use client";
+
+import Image from "next/image";
+import Input from "./input";
+import Message from "./message";
+import { ConversationProvider } from "../context/conversation";
+import useConversation from "@/hooks/useConversation";
+import { useEffect, useRef } from "react";
+import { ConfigProvider } from "@/context/config";
+import { Popover, Transition } from "@headlessui/react";
+import useConfig from "@/hooks/useConfig";
+import classNames from "classnames";
+
+function Conversation() {
+  const { conversation } = useConversation();
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  }, [ref, conversation]);
+  return (
+    <div className="flex-1 overflow-auto scrollbar-hidden">
+      {conversation.messages.map((msg, i) => (
+        <Message msg={msg} key={i} />
+      ))}
+      <div className="float-left clear-both" ref={ref} />
+    </div>
+  );
+}
+
+function ClearConversationButton() {
+  const { clear } = useConversation();
+  return (
+    <Image
+      src="/images/refresh.png"
+      width="40"
+      height="40"
+      alt="settings"
+      className="h-10 w-10 transition hover:cursor-pointer hover:rotate-45 hover:scale-110"
+      onClick={() => clear()}
+    />
+  );
+}
+
+function SwitchItem({
+  text,
+  items,
+}: {
+  text: string;
+  items: { text: string; isActive?: boolean; action?: () => void }[];
+}) {
+  return (
+    <div className="px-2 py-1 flex items-center">
+      <div className="text-sm w-28">{text}</div>
+      <div className="flex gap-1 hover:cursor-default">
+        {items.map((item, key) => {
+          if (item.text === "/") return <span key={key}>/</span>;
+          return (
+            <span
+              className={classNames(
+                item.isActive
+                  ? " underline underline-offset-4"
+                  : "hover:cursor-pointer text-gray-400 transition hover:scale-110"
+              )}
+              onClick={() => {
+                if (!item.isActive && item.action) item.action();
+              }}
+              key={key}
+            >
+              {item.text}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function RephraseItem() {
+  const { config, setRephrase } = useConfig();
+  const items = [
+    { text: "On", isActive: config.rephrase, action: () => setRephrase(true) },
+    { text: "/" },
+    {
+      text: "Off",
+      isActive: !config.rephrase,
+      action: () => setRephrase(false),
+    },
+  ];
+  return <SwitchItem text="Rephrase" items={items} />;
+}
+
+function DiverseReplyItem() {
+  const { config, setDiverseReply } = useConfig();
+  const items = [
+    {
+      text: "On",
+      isActive: config.diverseReply,
+      action: () => setDiverseReply(true),
+    },
+    { text: "/" },
+    {
+      text: "Off",
+      isActive: !config.diverseReply,
+      action: () => setDiverseReply(false),
+    },
+  ];
+  return <SwitchItem text="Diversity" items={items} />;
+}
+
+function TopKReturnItem() {
+  const { config, setTopKReturn } = useConfig();
+  return (
+    <div className="px-2 py-1 flex items-center">
+      <div className="text-sm w-28 flex-shrink-0">Top-K</div>
+      <div>
+        <input
+          type="number"
+          className="w-16"
+          value={config.topKReturn}
+          max={10}
+          min={1}
+          onChange={(e) => setTopKReturn(e.target.valueAsNumber)}
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <ConfigProvider>
+      <ConversationProvider>
+        <main className="flex h-screen flex-col items-center justify-between md:px-12">
+          <div className="h-full overflow-hidden px-12 my-12 max-w-4xl relative flex flex-col flex-1 justify-between container rounded-3xl bg-white">
+            <div className="relative text-center py-8">
+              <div className="absolute left-0 inset-y-0 h-full flex items-center">
+                <ClearConversationButton />
+              </div>
+              <h1
+                className={`text-6xl font-bold font-handwriting relative inline`}
+              >
+                irasutonya
+                <Image
+                  src="/images/cat_fish_run.png"
+                  alt="search"
+                  width="60"
+                  height="60"
+                  className="absolute right-0 top-0 -mr-16 transition hover:scale-110 hover:-rotate-12 hover:translate-x-2 hover:-translate-y-2"
+                />
+              </h1>
+              <Popover
+                as="div"
+                className="absolute right-0 inset-y-0 h-full text-left flex items-center"
+              >
+                {({ open }) => (
+                  <div className="relative">
+                    <Popover.Button className="outline-0 active:outline-0">
+                      <Image
+                        src="/images/haguruma_gear1_silver.png"
+                        width="40"
+                        height="40"
+                        alt="settings"
+                        className={classNames(
+                          open ? "rotate-45 scale-110" : "",
+                          "h-10 w-10 transition hover:cursor-pointer"
+                        )}
+                      />
+                    </Popover.Button>
+                    <Transition
+                      enter="transition ease-out duration-100"
+                      enterFrom="transform opacity-0 scale-95"
+                      enterTo="transform opacity-100 scale-100"
+                      leave="transition ease-in duration-75"
+                      leaveFrom="transform opacity-100 scale-100"
+                      leaveTo="transform opacity-0 scale-95"
+                    >
+                      <Popover.Panel className="font-mono px-1 absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-400 rounded-lg bg-white border-4 border-amber-600 shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <RephraseItem />
+                        <DiverseReplyItem />
+                        <TopKReturnItem />
+                      </Popover.Panel>
+                    </Transition>
+                  </div>
+                )}
+              </Popover>
+            </div>
+            <Conversation />
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+            <Input />
+          </div>
+          <div className="font-mono text-gray-600 pb-4 flex gap-1 justify-center">
+            <a
+              href="https://github.com/hsiachi/irasutonya"
+              className="underline underline-offset-4 hover:cursor-pointer"
+            >
+              GitHub
+            </a>
+            |
+            <div>
+              Credits to{" "}
+              <a
+                href="https://www.irasutoya.com"
+                className="underline underline-offset-4 hover:cursor-pointer"
+              >
+                Irasutoya
+              </a>
+            </div>
+          </div>
+        </main>
+      </ConversationProvider>
+    </ConfigProvider>
+  );
 }
