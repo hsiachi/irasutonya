@@ -13,7 +13,7 @@ const initConversation: Conversation = {
   messages: [
     {
       role: "bot",
-      text: "Hi, what can I do for you today?",
+      text: "Hi, Welcome to Irasutonya, a website to search for pictures with natural languages! what can I do for you today?",
       isLoading: false,
     },
   ],
