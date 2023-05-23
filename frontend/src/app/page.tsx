@@ -188,6 +188,24 @@ export default function Home() {
 
             <Input />
           </div>
+          <div className="font-mono text-gray-600 pb-4 flex gap-1 justify-center">
+            <a
+              href="https://github.com/hsiachi/irasutonya"
+              className="underline underline-offset-4 hover:cursor-pointer"
+            >
+              GitHub
+            </a>
+            |
+            <div>
+              Credits to{" "}
+              <a
+                href="https://www.irasutoya.com"
+                className="underline underline-offset-4 hover:cursor-pointer"
+              >
+                Irasutoya
+              </a>
+            </div>
+          </div>
         </main>
       </ConversationProvider>
     </ConfigProvider>
