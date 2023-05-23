@@ -27,6 +27,20 @@ function Conversation() {
   );
 }
 
+function ClearConversationButton() {
+  const { clear } = useConversation();
+  return (
+    <Image
+      src="/images/refresh.png"
+      width="40"
+      height="40"
+      alt="settings"
+      className="h-10 w-10 transition hover:cursor-pointer hover:rotate-45 hover:scale-110"
+      onClick={() => clear()}
+    />
+  );
+}
+
 function SwitchItem({
   text,
   items,
@@ -119,6 +133,9 @@ export default function Home() {
         <main className="flex h-screen flex-col items-center justify-between md:px-12">
           <div className="h-full overflow-hidden px-12 my-12 max-w-4xl relative flex flex-col flex-1 justify-between container rounded-3xl bg-white">
             <div className="relative text-center py-8">
+              <div className="absolute left-0 inset-y-0 h-full flex items-center">
+                <ClearConversationButton />
+              </div>
               <h1
                 className={`text-6xl font-bold font-handwriting relative inline`}
               >

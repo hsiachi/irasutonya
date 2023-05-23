@@ -5,20 +5,24 @@ import { createContext, useState } from "react";
 type ConversationContextType = {
   conversation: Conversation;
   send: (text: string) => void;
+  clear: () => void;
+};
+
+const initConversation: Conversation = {
+  id: "",
+  messages: [
+    {
+      role: "bot",
+      text: "Hi, what can I do for you today?",
+      isLoading: false,
+    },
+  ],
 };
 
 const initConversationContext: ConversationContextType = {
-  conversation: {
-    id: "",
-    messages: [
-      {
-        role: "bot",
-        text: "Hi, what can I do for you today?",
-        isLoading: false,
-      },
-    ],
-  },
+  conversation: initConversation,
   send: () => {},
+  clear: () => {},
 };
 
 export const ConversationContext = createContext<ConversationContextType>(
@@ -30,9 +34,8 @@ export function ConversationProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [conversation, setConversation] = useState<Conversation>(
-    initConversationContext.conversation
-  );
+  const [conversation, setConversation] =
+    useState<Conversation>(initConversation);
   function addMessage({
     text,
     role,
@@ -162,8 +165,11 @@ export function ConversationProvider({
       updateLastMessage({ text, images, isLoading: false });
     }
   };
+  const clear = () => {
+    setConversation(initConversation);
+  };
   return (
-    <ConversationContext.Provider value={{ conversation, send }}>
+    <ConversationContext.Provider value={{ conversation, send, clear }}>
       {children}
     </ConversationContext.Provider>
   );
