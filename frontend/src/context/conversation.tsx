@@ -1,3 +1,4 @@
+import useConfig from "@/hooks/useConfig";
 import { Conversation } from "@/types/conversation";
 import { createContext, useState } from "react";
 
@@ -31,6 +32,7 @@ export function ConversationProvider({
   const [conversation, setConversation] = useState<Conversation>(
     initConversationContext.conversation
   );
+  const { config } = useConfig();
   const send = async (text: string) => {
     setConversation((conv) => ({
       ...conv,
@@ -47,6 +49,7 @@ export function ConversationProvider({
         new URLSearchParams({
           q: text,
           cid: conversation.id,
+          size: config.topKReturn.toString(),
         }),
       {
         method: "GET",
@@ -71,15 +74,20 @@ export function ConversationProvider({
         name: d["name"],
         url: d["image"],
       }));
-      const response = await fetch("/api/reply", {
-        method: "POST",
-        body: JSON.stringify({
-          conversation,
-          images,
-        }),
-      });
-      const text = (await response.json()).reply;
-      console.log(text);
+      let text: string;
+      if (config.diverseReply) {
+        const response = await fetch("/api/reply", {
+          method: "POST",
+          body: JSON.stringify({
+            conversation,
+            images,
+          }),
+        });
+        text = (await response.json()).reply;
+        console.log(text);
+      } else {
+        text = "Here are the results just for you!";
+      }
       setConversation((conv) => ({
         ...conv,
         messages: [
