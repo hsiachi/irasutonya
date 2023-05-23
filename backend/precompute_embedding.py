@@ -6,7 +6,7 @@ from PIL import Image
 import torch
 import sys
 
-def precompute_embeddings(dir, text_model, img_model):
+def precompute_embeddings(dir, text_model, img_model, text_npy, img_npy):
     os.chdir(dir)
     data = []
     with open('./data_filtered.jsonl') as f:
@@ -31,13 +31,20 @@ def precompute_embeddings(dir, text_model, img_model):
     img_emb = img_model.encode(images, batch_size=128, show_progress_bar=True, convert_to_numpy=True, device=torch.device('cuda:1'))
 
     print(name_emb.shape, img_emb.shape)
-    np.save('name_emb.npy', name_emb)
-    np.save('img_emb.npy', img_emb)
+    np.save(text_npy, name_emb)
+    np.save(img_npy, img_emb)
     
 if __name__ == '__main__':
     dir = '../data/data'
     text_model = SentenceTransformer('clip-ViT-B-32-multilingual-v1')
     img_model = SentenceTransformer('clip-ViT-B-32')
+    text_npy = 'name_emb.npy'
+    img_npy = 'img_emb.npy'
     
-    precompute_embeddings(dir, text_model, img_model)
+    text_model.load_state_dict(torch.load('./ckpts/text_epoch2.pt'))
+    img_model.load_state_dict(torch.load('./ckpts/img_epoch2.pt'))
+    text_npy = 'name_emb_finetuned.npy'
+    img_npy = 'img_emb_finetuned.npy'
+    
+    precompute_embeddings(dir, text_model, img_model, text_npy, img_npy)
     
