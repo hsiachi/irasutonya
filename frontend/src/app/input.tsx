@@ -15,7 +15,7 @@ export default function Input() {
     setText("");
   };
   return (
-    <div className="w-full p-8 flex">
+    <div className="w-full p-8 flex items-center">
       <div className="flex-1 mx-4 relative">
         <input
           type="text"

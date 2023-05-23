@@ -14,7 +14,6 @@ const initConversationContext: ConversationContextType = {
       {
         role: "bot",
         text: "Hi, what can I do for you today?",
-        idx: 0,
         isLoading: false,
       },
     ],
@@ -48,7 +47,6 @@ export function ConversationProvider({
       messages: [
         ...conv.messages,
         {
-          idx: conv.messages.length,
           role,
           text,
           isLoading,
@@ -82,6 +80,21 @@ export function ConversationProvider({
 
   const { config } = useConfig();
   const send = async (text: string) => {
+    // conversation might not be updated,
+    // so we have to copy manually.
+    // TODO: find a better way to cope with it
+    let convCopy = JSON.parse(JSON.stringify(conversation)) as Conversation;
+    convCopy = {
+      ...convCopy,
+      messages: [
+        ...convCopy.messages,
+        {
+          text,
+          role: "user",
+          isLoading: false,
+        },
+      ],
+    };
     addMessage({ text, role: "user", isLoading: false });
     addMessage({ text: "", role: "bot", isLoading: true });
     const res = await fetch(
@@ -110,7 +123,7 @@ export function ConversationProvider({
         const response = await fetch("/api/reply", {
           method: "POST",
           body: JSON.stringify({
-            conversation,
+            conversation: convCopy,
             images,
           }),
         });

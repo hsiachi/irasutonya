@@ -26,8 +26,17 @@ function convertImagesToPrompt(images: { name: string; url: string }[]) {
   return "[Image] " + images.map((img) => img.name).join(", ");
 }
 
-function convertConversationToPrompt(conversation: Conversation) {
+function convertConversationToPrompt(
+  conversation: Conversation,
+  useLast: boolean
+) {
+  let start, end: number | undefined;
+  if (useLast) {
+    start = conversation.messages.length - 1;
+    end = start + 1;
+  }
   return conversation.messages
+    .slice(start, end)
     .map((msg) => {
       let m = `[${msg.role}] ${msg.text}`;
       if (msg.images) {
@@ -45,7 +54,7 @@ export async function getBotReply(
   console.log(conversation);
   const prompt =
     botReplyPrompt +
-    convertConversationToPrompt(conversation) +
+    convertConversationToPrompt(conversation, true) +
     "\n" +
     convertImagesToPrompt(images) +
     "\n[Bot] ";
